@@ -1,0 +1,94 @@
+###
+POST http://localhost:9000/auth/register HTTP/1.1
+Content-Type: application/json
+
+{
+    "correo":"ruizbi123@gmail.com",
+    "contraseña":"contraseña3"
+}
+
+###
+GET http://localhost:9000/auth/login HTTP/1.1
+Content-Type: application/json
+
+{
+    "correo":"ruizbi123@gmail.com",
+    "contraseña":"contraseña3"
+}
+
+###
+GET http://localhost:9000/api/characters?id=61e89b13ffbdc90ee9f13b03 HTTP/1.1
+
+###
+PUT http://localhost:9000/api/characters?id=61e89b13ffbdc90ee9f13b03 HTTP/1.1
+Content-Type: application/json
+
+{
+    "nombre": "dddddd",
+    "edad": 11,
+    "peso": 22,
+    "historia": "Otra mas",
+    "imagen": "./img/pedro.jpg",
+    "series": ["Una serie"],
+    "peliculas": ["Una peli", "Prueba de query"]
+}
+
+###
+DELETE http://localhost:9000/api/characters?nam=DDD HTTP/1.1
+Content-Type: application/json
+
+###
+POST http://localhost:9000/api/pelicula HTTP/1.1
+Content-Type: application/json
+
+{
+    "titulo": "Una pelicula mas 1",
+    "imagen": "./img/unapeliculamas.jpg",
+    "fecha_creacion": "10/02/11",
+    "calificacion": 7
+}
+
+###
+GET http://localhost:9000/api/pelicula HTTP/1.1
+
+###
+GET http://localhost:9000/api/pelicula?name=Una pelicula mas 1 HTTP/1.1
+
+###
+PUT http://localhost:9000/api/pelicula/61ea4c1be36c8bf1548edd20 HTTP/1.1
+Content-Type: application/json
+
+{
+    "titulo": "Una pelicula 22",
+    "imagen": "./img/unapeliculamas1.jpg",
+    "fecha_creacion": "19/11/12",
+    "calificacion": 3
+}
+
+###
+DELETE http://localhost:9000/api/pelicula/61ea4c1be36c8bf1548edd20 HTTP/1.1
+Content-Type: application/json
+
+###
+POST http://localhost:9000/api/genero HTTP/1.1
+Content-Type: application/json
+
+{
+    "nombre":"Un genero cualquiera 2",
+    "imagen":"./img_genero.jpeg"
+}
+
+###
+GET http://localhost:9000/api/genero HTTP/1.1
+
+###
+GET http://localhost:9000/api/genero/61ea4c89e36c8bf1548edd26 HTTP/1.1
+
+###
+PUT http://localhost:9000/api/genero/61ea4c89e36c8bf1548edd26 HTTP/1.1
+Content-Type: application/json
+
+{
+    "nombre":"Un cualquiera 22",
+    "imagen":"./img_genero.jpeg" 
+}
