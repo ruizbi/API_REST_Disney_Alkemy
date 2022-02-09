@@ -1,7 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const PersonajeSchema = require('../models/Personaje');
-const validarCampos = require('../middlewares/validarCampos');
+const {validarCampos, elPersonajeExiste} = require('../middlewares/validarCampos');
 const { check } = require('express-validator');
 
 // HELPERS
@@ -90,13 +90,17 @@ router.delete("/characters", (req, res) => {
 });
 
 // TODO: MODIFICAR PERSONAJE
-router.put("/characters", (req, res) => {
-    let query = req.query;
-    let {nombre, edad, peso, historia, imagen, series, peliculas} = req.body;
-    PersonajeSchema
-        .updateOne({_id:query.id}, { $set: {nombre, edad, peso, historia, imagen, series, peliculas}})
-        .then((data) => res.send({data, message:'Personaje modificado con exito'}))
-        .catch((error) => res.send({message:'Error al modificar el personaje',data:error}));
-});
+router.put("/characters", [
+    check("id", "No es un ID valido").isMongoId(),
+    check("id").custom(elPersonajeExiste),
+    validarCampos,
+    (req, res) => {
+        let {id} = req.query;
+        let {nombre, edad, peso, historia, imagen, series, peliculas} = req.body;
+        PersonajeSchema
+            .updateOne({_id:id}, { $set: {nombre, edad, peso, historia, imagen, series, peliculas}})
+            .then((data) => res.send({data, message:'Personaje modificado con exito'}))
+            .catch((error) => res.send({message:'Error al modificar el personaje',data:error}));
+}]);
 
 module.exports = router;

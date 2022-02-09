@@ -2,7 +2,7 @@ const express = require('express');
 const router = express.Router();
 const PeliculaSchema = require('../models/Pelicula');
 const GeneroSchema = require('../models/Genero');
-const validarCampos = require('../middlewares/validarCampos');
+const {validarCampos, laPeliculaExiste} = require('../middlewares/validarCampos');
 const { check } = require('express-validator');
 
 const obtener_info_filtrada = (data = []) => data.map(dato => ({titulo:dato.titulo, imagen:dato.imagen, fecha_creacion:dato.fecha_creacion}))
@@ -71,20 +71,24 @@ router.get("/pelicula", (req, res) => {
 });
 
 // TODO: MODIFICAR PELICULA
-router.put("/pelicula", (req, res) => {
-    const {id} = req.query;
-    const {titulo, imagen, fecha_creacion, calificacion, personajes} = req.body;
+router.put("/pelicula", [
+    check("id", "No es un ID valido").isMongoId(),
+    check("id").custom(laPeliculaExiste),
+    validarCampos,
+    (req, res) => {
+        const {id} = req.query;
+        const {_id, ...resto} = req.body;
 
-    PeliculaSchema
-        .updateOne({_id:id}, {$set:{titulo, imagen, fecha_creacion, calificacion, personajes}})
-        .then((data) => res.send({message:'Modificado con exito', data}))
-        .catch((error) => res.send({message:'Error al modificar pelicula', data:error}));
-});
+        PeliculaSchema
+            .updateOne({_id:id}, {$set:resto})
+            .then((data) => res.send({message:'Modificado con exito', data}))
+            .catch((error) => res.send({message:'Error al modificar pelicula', data:error}));
+}]);
 
 // TODO: BORRAR PELICULA
 router.delete("/serie", (req, res) => {
     let query = req.query;
-    
+        
     if(query.hasOwnProperty('id')) {
         SerieSchema
             .deleteOne({_id:query.id})

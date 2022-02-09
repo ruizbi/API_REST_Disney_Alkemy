@@ -3,13 +3,13 @@ const bcryptjs = require('bcryptjs');
 const router = express.Router();
 const UsuarioSchema = require('../models/Usuario');
 const generarJWT = require('../helpers/generarJWT');
-const validarCampos = require('../middlewares/validarCampos');
+const {validarCampos, elCorreoExiste} = require('../middlewares/validarCampos');
 const { check } = require('express-validator');
 require('dotenv').config();
 
-router.get('/login', (req, res) => {
+router.get('/login', async (req, res) => {
     let {correo, contraseña} = req.body;
-    let validar_correo = UsuarioSchema.findOne({correo});
+    let validar_correo = await UsuarioSchema.findOne({correo});
 
     if(!validar_correo)
         return res.send({message:'El usuario no existe o la contraseña es incorrecta', data:{}});
@@ -30,15 +30,15 @@ router.get('/login', (req, res) => {
 router.post('/register', [
     check("nombre", "El nombre es obligatorio").notEmpty(),
     check("correo", "El correo es obligatorio").notEmpty().isEmail(),
-    check("contraseña", "La contraseña es obligatoria (Mayor a 6 caracteres alfanumericos)").notEmpty().isLength({min:6}).isAlphanumeric(),
+    check("contraseña", "La contraseña es obligatoria (Mayor a 6 caracteres)").notEmpty().isLength({min:6}),
     validarCampos,
-    (req, res) => {
+    async (req, res) => {
         let {correo, contraseña, nombre} = req.body;
-        let validar_correo = UsuarioSchema.findOne({correo});
+        let validar_correo = await UsuarioSchema.findOne({correo});
 
         if(validar_correo)
             return res.send({message:'El mail ya esta registrado', data:{}});
-        
+
         let usuario = new UsuarioSchema({correo, contraseña, nombre});
         let salt = bcryptjs.genSaltSync();
         usuario.contraseña = bcryptjs.hashSync(contraseña, salt);

@@ -1,7 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const GeneroSchema = require('../models/Genero');
-const validarCampos = require('../middlewares/validarCampos');
+const {validarCampos, elGeneroExiste} = require('../middlewares/validarCampos');
 const { check } = require('express-validator');
 
 // TODO: CREAR GENERO
@@ -51,31 +51,43 @@ router.get("/genero", (req, res) => {
 });
 
 // TODO: OBTENER GENERO POR ID
-router.get("/genero", (req, res) => {
-    let {id} = req.query;
-    GeneroSchema
-        .findById({_id:id})
-        .then((data) => (data) ? res.send({message:'Busqueda exitosa',data}):res.send({message:'No se encontro el genero', data:{}}))
-        .catch((error) => res.send({message:'Error en la busqueda', data:error}));
-});
+router.get("/genero", [
+    check("id", "No es un ID valido").isMongoId(),
+    check("id").custom(elGeneroExiste),
+    validarCampos,
+    (req, res) => {
+        let {id} = req.query;
+        GeneroSchema
+            .findById({_id:id})
+            .then((data) => (data) ? res.send({message:'Busqueda exitosa',data}):res.send({message:'No se encontro el genero', data:{}}))
+            .catch((error) => res.send({message:'Error en la busqueda', data:error}));
+}]);
 
 // TODO: BORRAR GENERO POR ID
-router.delete("/genero", (req, res) => {
-    let {id} = req.query;
-    GeneroSchema
-        .remove({_id:id})
-        .then((data) => res.send({data, message:'Eliminado con exito'}))
-        .catch((error) => res.send({message:'Error al eliminar genero', data:error}));
-});
+router.delete("/genero", [
+    check("id", "No es un ID valido").isMongoId(),
+    check("id").custom(elGeneroExiste),
+    validarCampos,
+    (req, res) => {
+        let {id} = req.query;
+        GeneroSchema
+            .remove({_id:id})
+            .then((data) => res.send({data, message:'Eliminado con exito'}))
+            .catch((error) => res.send({message:'Error al eliminar genero', data:error}));
+}]);
 
 // TODO: MODIFICAR GENERO POR ID
-router.put("/genero", (req, res) => {
-    let {id} = req.query;
-    let {nombre, imagen, peliculas, series} = req.body;
-    GeneroSchema
-        .updateOne({_id:id}, {$set:{nombre, imagen, peliculas, series}})
-        .then((data) => res.send({message:'Modificado con exito', data}))
-        .catch((error) => res.send({message:'Error al modificar genero', data:error}));
-});
+router.put("/genero", [
+    check("id", "No es un ID valido").isMongoId(),
+    check("id").custom(elGeneroExiste),
+    validarCampos,
+    (req, res) => {
+        let {id} = req.query;
+        let {_id, ...resto} = req.body;
+        GeneroSchema
+            .updateOne({_id:id}, {$set:resto})
+            .then((data) => res.send({message:'Modificado con exito', data}))
+            .catch((error) => res.send({message:'Error al modificar genero', data:error}));
+}]);
 
 module.exports = router;
