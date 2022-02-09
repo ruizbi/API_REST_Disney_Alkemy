@@ -1,24 +1,23 @@
-const mongoose = require('mongoose');
+const {Schema, model} = require('mongoose');
 
-const generoSchema = mongoose.Schema({
+const generoSchema = Schema({
     nombre: {
         type: String,
-        require: true
+        required: [true, 'El nombre es obligatorio'],
+        unique: true
     },
     imagen: {
         type: String,
-        require: true
+        required: [true, 'El path de la imagen es obligatorio']
     },
     peliculas: {
         type: [String],
-        require: true,
         default: []
     },
     series: {
         type: [String],
-        require: true,
         default: []
     }
 });
 
-module.exports = mongoose.model("Genero", generoSchema);
+module.exports = model("Genero", generoSchema);

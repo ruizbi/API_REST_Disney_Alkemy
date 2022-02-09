@@ -8,7 +8,8 @@ const obtener_info_filtrada = (data = []) => data.map(dato => ({nombre:dato.nomb
 
 // TODO: CREAR PERSONAJE
 router.post("/characters", (req, res) => {
-    let personaje = personajeSchema(req.body);
+    let {nombre, edad, peso, historia, imagen, series, peliculas} = req.body;
+    let personaje = personajeSchema({nombre, edad, peso, historia, imagen, series, peliculas});
     personaje
         .save()
         .then(data => res.send({message:'Personaje creado', data}))

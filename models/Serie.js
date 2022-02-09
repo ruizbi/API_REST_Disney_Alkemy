@@ -1,27 +1,27 @@
-const mongoose = require('mongoose');
+const {Schema, model} = require('mongoose');
 
-const serieSchema = mongoose.Schema({
+const serieSchema = Schema({
     titulo: {
         type: String,
-        require: true
+        required: [true, 'El titulo es obligatorio'],
+        unique: true
     },
     imagen: {
         type: String,
-        require: true
+        required: [true, 'El path de la imagen es obligatorio']
     },
     fecha_creacion: {
         type: String,
-        require: true
+        required: [true, 'La fecha de creacion es obligatoria']
     },
     calificacion: {
         type: Number,
-        require: true
+        required: [true, 'La calificacion es obligatoria']
     },
     personajes: {
         type: [String],
-        require: true,
         default: []
     }
 });
 
-module.exports = mongoose.model("Serie", serieSchema);
+module.exports = model("Serie", serieSchema);

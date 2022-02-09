@@ -14,14 +14,14 @@ router.get('/login', (req, res) => {
             res.send({message:'Loggin correcto', data, token})
         }
         else
-            res.send({message:'El usuario no existe', data})
+            res.send({message:'El usuario no existe o la contraseña es incorrecta', data})
     })
     .catch(error => res.send({message:'Error al logear', data:error}));
 });
 
 router.post('/register', (req, res) => {
-    let {correo, contraseña} = req.body;
-    let usuario = usuarioSchema({correo, contraseña});
+    let {correo, contraseña, nombre} = req.body;
+    let usuario = usuarioSchema({correo, contraseña, nombre});
     usuario
     .save()
     .then((data) => res.send({data, message:'Usuario creado'}))

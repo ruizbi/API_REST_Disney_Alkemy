@@ -1,14 +1,23 @@
-const mongoose = require('mongoose');
+const {Schema, model} = require('mongoose');
 
-const usuarioSchema = mongoose.Schema({
+const usuarioSchema = Schema({
+    nombre: {
+        type: String,
+        required: [true, 'El nombre es obligatorio']
+    },
     correo: {
         type: String,
-        require: true
+        required: [true, 'El correo es obligatorio'],
+        unique: true
     },
     contraseña: {
         type: String,
-        require: true
+        required: [true, 'La contraseña es obligatoria']
+    },
+    activo: {
+        type: Boolean,
+        default: true
     }
 });
 
-module.exports = mongoose.model("Usuario", usuarioSchema);
+module.exports = model("Usuario", usuarioSchema);

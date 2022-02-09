@@ -1,36 +1,35 @@
-const mongoose = require('mongoose');
+const {Schema, model} = require('mongoose');
 
-const personajeSchema = mongoose.Schema({
+const personajeSchema = Schema({
     nombre: {
-        type : String,
-        require : true
+        type: String,
+        required: [true, 'El nombre es obligatorio'],
+        unique: true
     },
     edad: {
         type: Number,
-        require: true
+        required: [true, 'La edad es obligatoria']
     },
     peso: {
         type: Number,
-        require: true
+        required: [true, 'El peso es obligatorio']
     },
     historia: {
-        type : String,
-        require : true
+        type: String,
+        required: [true, 'La historia es obligatoria']
     },
     imagen: {
-        type : String,
-        require : true
+        type: String,
+        required: [true, 'El path de la imagen es obligatorio']
     },
     series: {
         type: [String],
-        require: true,
         default: []
     },
     peliculas: {
         type: [String],
-        require: true,
         default: []
     }
 });
 
-module.exports = mongoose.model("Personaje", personajeSchema);
+module.exports = model("Personaje", personajeSchema);

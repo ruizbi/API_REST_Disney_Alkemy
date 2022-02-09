@@ -1,10 +1,13 @@
 ###
-POST http://localhost:9000/auth/register HTTP/1.1
+POST http://localhost:9000/api/characters HTTP/1.1
 Content-Type: application/json
 
 {
-    "correo":"ruizbi123@gmail.com",
-    "contraseña":"contraseña3"
+    "nombre":"Bruno",
+    "edad":"26",
+    "peso":"80",
+    "historia":"Una historia cualunque",
+    "imagen":"./img/bruno.png"
 }
 
 ###
