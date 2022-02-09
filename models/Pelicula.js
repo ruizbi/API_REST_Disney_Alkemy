@@ -1,6 +1,6 @@
 const {Schema, model} = require('mongoose');
 
-const peliculaSchema = Schema({
+const PeliculaSchema = Schema({
     titulo: {
         type: String,
         required: [true, 'El titulo es obligatorio'],
@@ -24,4 +24,4 @@ const peliculaSchema = Schema({
     }
 });
 
-module.exports = model("Pelicula", peliculaSchema);
+module.exports = model("Pelicula", PeliculaSchema);
