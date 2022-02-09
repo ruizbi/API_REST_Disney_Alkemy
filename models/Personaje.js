@@ -32,4 +32,9 @@ const PersonajeSchema = Schema({
     }
 });
 
+PersonajeSchema.methods.toJSON = function() {
+    const {__v, ...personaje} = this.toObject();
+    return personaje;
+}
+
 module.exports = model("Personaje", PersonajeSchema);

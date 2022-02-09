@@ -20,4 +20,9 @@ const GeneroSchema = Schema({
     }
 });
 
+GeneroSchema.methods.toJSON = function() {
+    const {__v, ...pelicula} = this.toObject();
+    return pelicula;
+}
+
 module.exports = model("Genero", GeneroSchema);
