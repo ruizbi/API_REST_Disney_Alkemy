@@ -1,38 +1,50 @@
 const express = require('express');
 const router = express.Router();
-const generoSchema = require('../models/Genero');
+const GeneroSchema = require('../models/Genero');
+const validarCampos = require('../middlewares/validarCampos');
+const { check } = require('express-validator');
 
 // TODO: CREAR GENERO
-router.post("/genero", (req, res) => {
-    let genero = generoSchema(req.body);
+router.post("/genero", [
+    check("nombre", "El nombre es obligatorio").notEmpty(),
+    check("imagen", "El path de la imagen es obligatorio").notEmpty(),
+    validarCampos,
+    async (req, res) => {
+        let {nombre, imagen, peliculas, series} = req.body;
+        let validar_genero = await GeneroSchema.findOne({nombre});
+        
+        if(validar_genero)
+            return res.send({message:'El usuario ya existe', data:{}});
 
-    genero
-        .save()
-        .then((data) => res.send({data, message:'Genero creado'}))
-        .catch((error) => res.send({message:'Error al crear genero', data:error}));
-});
+        let genero = new GeneroSchema({nombre, imagen, peliculas, series});
+
+        genero
+            .save()
+            .then((data) => res.send({data, message:'Genero creado'}))
+            .catch((error) => res.send({message:'Error al crear genero', data:error}));
+}]);
 
 // TODO: OBTENER GENEROS
 router.get("/genero", (req, res) => {
     let query = req.query;
 
     if(Object.keys(query).length === 0) {
-        generoSchema
-        .find()
-        .then((data) => res.send({data, message:'Busqueda exitosa'}))
-        .catch((error) => res.send({message:'Error en la busqueda', data:error}));
+        GeneroSchema
+            .find()
+            .then((data) => res.send({data, message:'Busqueda exitosa'}))
+            .catch((error) => res.send({message:'Error en la busqueda', data:error}));
     }
     else if(query.hasOwnProperty('nombre')){
-        generoSchema
-        .find({nombre:query.nombre})
-        .then((data) => res.send({data, message:'Busqueda exitosa'}))
-        .catch((error) => res.send({message:'Error en la busqueda', data:error}));    
+        GeneroSchema
+            .find({nombre:query.nombre})
+            .then((data) => res.send({data, message:'Busqueda exitosa'}))
+            .catch((error) => res.send({message:'Error en la busqueda', data:error}));    
     }
     else if(query.hasOwnProperty('id')){
-        generoSchema
-        .find({_id:query.id})
-        .then((data) => res.send({data, message:'Busqueda exitosa'}))
-        .catch((error) => res.send({message:'Error en la busqueda', data:error}));    
+        GeneroSchema
+            .find({_id:query.id})
+            .then((data) => res.send({data, message:'Busqueda exitosa'}))
+            .catch((error) => res.send({message:'Error en la busqueda', data:error}));    
     }
     else
         res.send({data:{}, message:'Error en el parametro de busqueda'});
@@ -41,7 +53,7 @@ router.get("/genero", (req, res) => {
 // TODO: OBTENER GENERO POR ID
 router.get("/genero", (req, res) => {
     let {id} = req.query;
-    generoSchema
+    GeneroSchema
         .findById({_id:id})
         .then((data) => (data) ? res.send({message:'Busqueda exitosa',data}):res.send({message:'No se encontro el genero', data:{}}))
         .catch((error) => res.send({message:'Error en la busqueda', data:error}));
@@ -50,7 +62,7 @@ router.get("/genero", (req, res) => {
 // TODO: BORRAR GENERO POR ID
 router.delete("/genero", (req, res) => {
     let {id} = req.query;
-    generoSchema
+    GeneroSchema
         .remove({_id:id})
         .then((data) => res.send({data, message:'Eliminado con exito'}))
         .catch((error) => res.send({message:'Error al eliminar genero', data:error}));
@@ -60,7 +72,7 @@ router.delete("/genero", (req, res) => {
 router.put("/genero", (req, res) => {
     let {id} = req.query;
     let {nombre, imagen, peliculas, series} = req.body;
-    generoSchema
+    GeneroSchema
         .updateOne({_id:id}, {$set:{nombre, imagen, peliculas, series}})
         .then((data) => res.send({message:'Modificado con exito', data}))
         .catch((error) => res.send({message:'Error al modificar genero', data:error}));
