@@ -4,6 +4,7 @@ const PeliculaSchema = require('../models/Pelicula');
 const GeneroSchema = require('../models/Genero');
 const {validarCampos, laPeliculaExiste} = require('../middlewares/validarCampos');
 const { check } = require('express-validator');
+const validarJWT = require('../helpers/validarJWT');
 
 const obtener_info_filtrada = (data = []) => data.map(dato => ({titulo:dato.titulo, imagen:dato.imagen, fecha_creacion:dato.fecha_creacion}))
 
@@ -72,6 +73,7 @@ router.get("/pelicula", (req, res) => {
 
 // TODO: MODIFICAR PELICULA
 router.put("/pelicula", [
+    validarJWT,
     check("id", "No es un ID valido").isMongoId(),
     check("id").custom(laPeliculaExiste),
     validarCampos,
@@ -86,21 +88,23 @@ router.put("/pelicula", [
 }]);
 
 // TODO: BORRAR PELICULA
-router.delete("/serie", (req, res) => {
-    let query = req.query;
-        
-    if(query.hasOwnProperty('id')) {
-        SerieSchema
-            .deleteOne({_id:query.id})
-            .then((data) => res.send({message:'Eliminado con exito', data}))
-            .catch((error) => res.send({message:'Error al borrar', data:error}));
-    }
-    else if(query.hasOwnProperty('titulo')) {
-        serieSchema
-            .deleteOne({titulo:query.name})
-            .then((data) => res.send({message:'Eliminado con exito', data}))
-            .catch((error) => res.send({message:'Error al borrar', data:error}));
-    }
-});
+router.delete("/serie", [
+    validarJWT,
+    (req, res) => {
+        let query = req.query;
+            
+        if(query.hasOwnProperty('id')) {
+            SerieSchema
+                .deleteOne({_id:query.id})
+                .then((data) => res.send({message:'Eliminado con exito', data}))
+                .catch((error) => res.send({message:'Error al borrar', data:error}));
+        }
+        else if(query.hasOwnProperty('titulo')) {
+            serieSchema
+                .deleteOne({titulo:query.name})
+                .then((data) => res.send({message:'Eliminado con exito', data}))
+                .catch((error) => res.send({message:'Error al borrar', data:error}));
+        }
+}]);
 
 module.exports = router;

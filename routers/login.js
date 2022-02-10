@@ -3,18 +3,29 @@ const bcryptjs = require('bcryptjs');
 const router = express.Router();
 const UsuarioSchema = require('../models/Usuario');
 const generarJWT = require('../helpers/generarJWT');
-const {validarCampos, elCorreoExiste} = require('../middlewares/validarCampos');
+const validarJWT = require('../helpers/validarJWT');
+const {validarCampos} = require('../middlewares/validarCampos');
 const { check } = require('express-validator');
 require('dotenv').config();
 
-router.get('/login', async (req, res) => {
+router.post('/login', async (req, res) => {
     let {correo, contraseña} = req.body;
-    let validar_correo = await UsuarioSchema.findOne({correo});
+    let usuario = await UsuarioSchema.findOne({correo});
 
-    if(!validar_correo)
+    if(!usuario)
         return res.send({message:'El usuario no existe o la contraseña es incorrecta', data:{}});
+    if(!usuario.activo)
+        return res.send({message:'El usuario no se encuentra activo', data:{}});
+
+    const validar_password = bcryptjs.compareSync(contraseña, usuario.contraseña);
     
-    UsuarioSchema
+    if(!validar_password)
+        return res.send({message:'El usuario no existe o la contraseña es incorrecta (PASS)', data:{}});
+
+    const token = await generarJWT(usuario._id);
+    res.send({message:'Loggin correcto', usuario, token});
+
+/*    UsuarioSchema
         .findOne({correo, contraseña})
         .then( async (data) => {
             if(data) {
@@ -24,7 +35,7 @@ router.get('/login', async (req, res) => {
             else
                 res.send({message:'El usuario no existe o la contraseña es incorrecta', data:{}})
         })
-        .catch(error => res.send({message:'Error al logear', data:error}));
+        .catch(error => res.send({message:'Error al logear', data:error})); */
 });
 
 router.post('/register', [

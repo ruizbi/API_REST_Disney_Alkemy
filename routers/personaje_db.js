@@ -3,6 +3,7 @@ const router = express.Router();
 const PersonajeSchema = require('../models/Personaje');
 const {validarCampos, elPersonajeExiste} = require('../middlewares/validarCampos');
 const { check } = require('express-validator');
+const validarJWT = require('../helpers/validarJWT');
 
 // HELPERS
 
@@ -16,9 +17,9 @@ router.post("/characters", [
     check('historia','No se ingreso la historia').notEmpty(),
     check('imagen','No se ingreso el path de la imagen').notEmpty(),
     validarCampos,
-    (req, res) => {
+    async (req, res) => {
         let {nombre, edad, peso, historia, imagen, series, peliculas} = req.body;
-        let validar_personaje = PersonajeSchema.findOne({nombre});
+        let validar_personaje = await PersonajeSchema.findOne({nombre});
 
         if(validar_personaje)
             return res.send({message:'El personaje ya existe', data:{}});
@@ -71,26 +72,31 @@ router.get("/characters", (req, res) => {
 });
 
 // TODO: BORRAR PERSONAJE
-router.delete("/characters", (req, res) => {
-    let query = req.query;
+router.delete("/characters", [
+    validarJWT,
+    (req, res) => {
+        let query = req.query;
 
-    if(query.hasOwnProperty('id')) {
-        PersonajeSchema
-            .deleteOne({_id:query.id})
-            .then((data) => res.send({message:'Eliminado con exito', data}))
-            .catch((error) => res.send({message:'Error al borrar', data:error}));
-    }
-    else if(query.hasOwnProperty('name')) {
-        PersonajeSchema
-            .deleteOne({nombre:query.name})
-            .then((data) => res.send({message:'Eliminado con exito', data}))
-            .catch((error) => res.send({message:'Error al borrar', data:error}));
-    }
-    else res.send({message:'Error en los parametros al borrar', data: {}})
-});
+        if(query.hasOwnProperty('id')) {
+            // VALIDAR QUE EXISTE
+            PersonajeSchema
+                .deleteOne({_id:query.id})
+                .then((data) => res.send({message:'Eliminado con exito', data}))
+                .catch((error) => res.send({message:'Error al borrar', data:error}));
+        }
+        else if(query.hasOwnProperty('name')) {
+            // VALIDAR QUE EXISTE
+            PersonajeSchema
+                .deleteOne({nombre:query.name})
+                .then((data) => res.send({message:'Eliminado con exito', data}))
+                .catch((error) => res.send({message:'Error al borrar', data:error}));
+        }
+        else res.send({message:'Error en los parametros al borrar', data: {}})
+}]);
 
 // TODO: MODIFICAR PERSONAJE
 router.put("/characters", [
+    validarJWT,
     check("id", "No es un ID valido").isMongoId(),
     check("id").custom(elPersonajeExiste),
     validarCampos,

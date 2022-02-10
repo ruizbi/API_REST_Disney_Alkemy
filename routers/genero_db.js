@@ -3,6 +3,7 @@ const router = express.Router();
 const GeneroSchema = require('../models/Genero');
 const {validarCampos, elGeneroExiste} = require('../middlewares/validarCampos');
 const { check } = require('express-validator');
+const validarJWT = require('../helpers/validarJWT');
 
 // TODO: CREAR GENERO
 router.post("/genero", [
@@ -65,6 +66,7 @@ router.get("/genero", [
 
 // TODO: BORRAR GENERO POR ID
 router.delete("/genero", [
+    validarJWT,
     check("id", "No es un ID valido").isMongoId(),
     check("id").custom(elGeneroExiste),
     validarCampos,
@@ -78,6 +80,7 @@ router.delete("/genero", [
 
 // TODO: MODIFICAR GENERO POR ID
 router.put("/genero", [
+    validarJWT,
     check("id", "No es un ID valido").isMongoId(),
     check("id").custom(elGeneroExiste),
     validarCampos,

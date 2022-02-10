@@ -4,6 +4,7 @@ const SerieSchema = require('../models/Serie');
 const GeneroSchema = require('../models/Genero');
 const {validarCampos, laSerieExiste} = require('../middlewares/validarCampos');
 const { check } = require('express-validator');
+const validarJWT = require('../helpers/validarJWT');
 
 // HELPERS
 
@@ -17,7 +18,7 @@ router.post("/serie", [
     validarCampos,
     async (req, res) => {
         let {titulo, imagen, fecha_creacion, calificacion, personajes} = req.body;
-        let validar_serie = SerieSchema.findOne({titulo});
+        let validar_serie = await SerieSchema.findOne({titulo});
         
         if(validar_serie)
             return res.send({message:'La serie ya existe', data:{}});
@@ -74,6 +75,7 @@ router.get("/serie", (req, res) => {
 
 // TODO: MODIFICAR SERIE
 router.put("/serie", [
+    validarJWT,
     check("id", "No es un ID valido").isMongoId(),
     check("id").custom(laSerieExiste),
     validarCampos,
@@ -88,21 +90,23 @@ router.put("/serie", [
 }]);
 
 // TODO: BORRAR SERIE
-router.delete("/serie", (req, res) => {
-    let query = req.query;
-        
-    if(query.hasOwnProperty('id')) {
-        SerieSchema
-            .deleteOne({_id:query.id})
-            .then((data) => res.send({message:'Eliminado con exito', data}))
-            .catch((error) => res.send({message:'Error al borrar', data:error}));
-    }
-    else if(query.hasOwnProperty('titulo')) {
-        SerieSchema
-            .deleteOne({titulo:query.name})
-            .then((data) => res.send({message:'Eliminado con exito', data}))
-            .catch((error) => res.send({message:'Error al borrar', data:error}));
-    }
-});
+router.delete("/serie", [
+    validarJWT,
+    (req, res) => {
+        let query = req.query;
+            
+        if(query.hasOwnProperty('id')) {
+            SerieSchema
+                .deleteOne({_id:query.id})
+                .then((data) => res.send({message:'Eliminado con exito', data}))
+                .catch((error) => res.send({message:'Error al borrar', data:error}));
+        }
+        else if(query.hasOwnProperty('titulo')) {
+            SerieSchema
+                .deleteOne({titulo:query.name})
+                .then((data) => res.send({message:'Eliminado con exito', data}))
+                .catch((error) => res.send({message:'Error al borrar', data:error}));
+        }
+}]);
 
 module.exports = router;
