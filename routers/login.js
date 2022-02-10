@@ -3,7 +3,6 @@ const bcryptjs = require('bcryptjs');
 const router = express.Router();
 const UsuarioSchema = require('../models/Usuario');
 const generarJWT = require('../helpers/generarJWT');
-const validarJWT = require('../helpers/validarJWT');
 const {validarCampos} = require('../middlewares/validarCampos');
 const { check } = require('express-validator');
 require('dotenv').config();
