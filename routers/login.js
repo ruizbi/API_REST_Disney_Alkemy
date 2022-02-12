@@ -58,4 +58,22 @@ router.post('/register', [
             .catch((error) => res.send({data:error, message:'Error al crear usuario'}));
 }]);
 
+router.delete('/delete/user', [
+    check("contraseña", "La contraseña es obligatori").notEmpty(),
+    check("correo", "El correo es obligatorio").notEmpty().isEmail(),
+    validarCampos,
+    async (req, res) => {
+        let {correo, contraseña} = req.body;
+        let validar_correo = await UsuarioSchema.findOne({correo, contraseña});
+        
+        if(!validar_correo)
+            return res.send({message:'El mail no existe'});
+        
+        UsuarioSchema
+            .updateOne({correo}, {$set:{activo:false}})
+            .then((data) => res.send({message:'Modificado con exito', data}))
+            .catch((error) => res.send({message:'Error al modificar usuario', data:error}));
+    }
+]);
+
 module.exports = router;
