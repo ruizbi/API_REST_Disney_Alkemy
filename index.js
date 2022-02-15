@@ -1,10 +1,10 @@
 require('dotenv').config();
 const express = require('express');
 const app = express();
-const personajeRoutes = require('./routers/personaje_db');
-const peliculaRoutes = require('./routers/pelicula_db');
-const serieRoutes = require('./routers/serie_db');
-const generoRoutes = require('./routers/genero_db');
+const personajeRoutes = require('./routers/personaje');
+const peliculaRoutes = require('./routers/pelicula');
+const serieRoutes = require('./routers/serie');
+const generoRoutes = require('./routers/genero');
 const authRoutes = require('./routers/login');
 const dbConnection = require('./database/config');
 const puertoEscucha = process.env.PUERTO_ESCUCHA || 9001;
