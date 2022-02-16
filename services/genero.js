@@ -5,14 +5,14 @@ const crearGenero = async (req, res) => {
     let validar_genero = await GeneroSchema.findOne({nombre});
     
     if(validar_genero)
-        return res.send({message:'El usuario ya existe', data:{}});
+        return res.status(400).send({message:'El usuario ya existe', data:{}});
 
     let genero = new GeneroSchema({nombre, imagen, peliculas, series});
 
     genero
         .save()
-        .then((data) => res.send({data, message:'Genero creado'}))
-        .catch((error) => res.send({message:'Error al crear genero', data:error}));
+        .then((data) => res.status(201).send({data, message:'Genero creado'}))
+        .catch((error) => res.status(500).send({message:'Error al crear genero', data:error}));
 };
 
 const buscarGenero = (req, res) => {
@@ -22,19 +22,19 @@ const buscarGenero = (req, res) => {
         GeneroSchema
             .find()
             .then((data) => res.send({data, message:'Busqueda exitosa'}))
-            .catch((error) => res.send({message:'Error en la busqueda', data:error}));
+            .catch((error) => res.status(500).send({message:'Error en la busqueda', data:error}));
     }
     else if(query.hasOwnProperty('nombre')){
         GeneroSchema
             .find({nombre:query.nombre})
             .then((data) => res.send({data, message:'Busqueda exitosa'}))
-            .catch((error) => res.send({message:'Error en la busqueda', data:error}));    
+            .catch((error) => res.status(500).send({message:'Error en la busqueda', data:error}));    
     }
     else if(query.hasOwnProperty('id')){
         GeneroSchema
             .find({_id:query.id})
             .then((data) => res.send({data, message:'Busqueda exitosa'}))
-            .catch((error) => res.send({message:'Error en la busqueda', data:error}));    
+            .catch((error) => res.status(500).send({message:'Error en la busqueda', data:error}));    
     }
     else
         res.send({data:{}, message:'Error en el parametro de busqueda'});
@@ -44,8 +44,8 @@ const buscarPorID = (req, res) => {
     let {id} = req.query;
     GeneroSchema
         .findById({_id:id})
-        .then((data) => (data) ? res.send({message:'Busqueda exitosa',data}):res.send({message:'No se encontro el genero', data:{}}))
-        .catch((error) => res.send({message:'Error en la busqueda', data:error}));
+        .then((data) => (data) ? res.send({message:'Busqueda exitosa',data}):res.status(404).send({message:'No se encontro el genero', data:{}}))
+        .catch((error) => res.status(500).send({message:'Error en la busqueda', data:error}));
 };
 
 const borrarGenero = (req, res) => {
@@ -53,7 +53,7 @@ const borrarGenero = (req, res) => {
     GeneroSchema
         .remove({_id:id})
         .then((data) => res.send({data, message:'Eliminado con exito'}))
-        .catch((error) => res.send({message:'Error al eliminar genero', data:error}));
+        .catch((error) => res.status(500).send({message:'Error al eliminar genero', data:error}));
 };
 
 const modificarGenero = (req, res) => {
@@ -62,7 +62,7 @@ const modificarGenero = (req, res) => {
     GeneroSchema
         .updateOne({_id:id}, {$set:resto})
         .then((data) => res.send({message:'Modificado con exito', data}))
-        .catch((error) => res.send({message:'Error al modificar genero', data:error}));
+        .catch((error) => res.status(500).send({message:'Error al modificar genero', data:error}));
 };
 
 module.exports = {

@@ -8,7 +8,7 @@ const crearPelicula = (req, res) => {
     let validar_pelicula = SerieSchema.findOne({titulo});
         
     if(validar_pelicula)
-        return res.send({message:'La pelicula ya existe', data:{}});
+        return res.status(400).send({message:'La pelicula ya existe', data:{}});
     
     let pelicula = new PeliculaSchema({titulo, imagen, fecha_creacion, calificacion, personajes});
 
@@ -18,8 +18,8 @@ const crearPelicula = (req, res) => {
 
     pelicula
         .save()
-        .then((data) => res.send({data, message:'Pelicula creada'}))
-        .catch((error) => res.send({data:error, message:'Error al crear pelicula'}));
+        .then((data) => res.status(201).send({data, message:'Pelicula creada'}))
+        .catch((error) => res.status(500).send({data:error, message:'Error al crear pelicula'}));
 };
 
 const buscarPelicula = (req, res) => {
@@ -29,19 +29,19 @@ const buscarPelicula = (req, res) => {
         PeliculaSchema
             .find()
             .then((data) => res.send({data:obtener_info_filtrada(data), message:'Busqueda exitosa'}))
-            .catch((error) => res.send({data:error, message:'Error en la busqueda'}));
+            .catch((error) => res.status(500).send({data:error, message:'Error en la busqueda'}));
     }
     else if(query.hasOwnProperty('name')) {
         PeliculaSchema
             .findOne({titulo:query.name})
-            .then((data) => (data) ? res.send({data, message:'Busqueda exitosa'}) : res.send({data:{}, message:'No se encontro la pelicula'}))
-            .catch((error) => res.send({data:error, message:'Error en la busqueda'}));
+            .then((data) => (data) ? res.send({data, message:'Busqueda exitosa'}) : res.status(404).send({data:{}, message:'No se encontro la pelicula'}))
+            .catch((error) => res.status(500).send({data:error, message:'Error en la busqueda'}));
     }
     else if(query.hasOwnProperty('genre')) {
         GeneroSchema
             .findOne({nombre:query.genre})
-            .then((data) => (Object.keys(data).length > 0) ? res.send({data:data.peliculas, message:'Busqueda exitosa'}):res.send({data:{}, message:'Busqueda exitosa'}))
-            .catch((error) => res.send({data:error, message:'Error en la busqueda'}));
+            .then((data) => (Object.keys(data).length > 0) ? res.send({data:data.peliculas, message:'Busqueda exitosa'}):res.status(404).send({data:{}, message:'No se encontro la pelicula'}))
+            .catch((error) => res.status(500).send({data:error, message:'Error en la busqueda'}));
     }
     else if(query.hasOwnProperty('order')) {
         (query.order === "ASC") ? 
@@ -49,14 +49,14 @@ const buscarPelicula = (req, res) => {
             .find()
             .sort({fecha_creacion:1})
             .then((data) => res.send({data:obtener_info_filtrada(data), message:'Busqueda ASC exitosa'}))
-            .catch((error) => res.send({data:error, message:'Error en la busqueda'})) :
+            .catch((error) => res.status(500).send({data:error, message:'Error en la busqueda'})) :
         PeliculaSchema
             .find().sort({fecha_creacion:-1})
             .then((data) => res.send({data:obtener_info_filtrada(data), message:'Busqueda DESC exitosa'}))
-            .catch((error) => res.send({data:error, message:'Error en la busqueda'}));
+            .catch((error) => res.status(500).send({data:error, message:'Error en la busqueda'}));
     }
     else
-        res.send({data:{}, message:'Error en el parametro de busqueda'});
+        res.status(400).send({data:{}, message:'Error en el parametro de busqueda'});
 };
 
 const borrarPelicula = (req, res) => {
@@ -66,13 +66,13 @@ const borrarPelicula = (req, res) => {
         SerieSchema
             .deleteOne({_id:query.id})
             .then((data) => res.send({message:'Eliminado con exito', data}))
-            .catch((error) => res.send({message:'Error al borrar', data:error}));
+            .catch((error) => res.status(500).send({message:'Error al borrar', data:error}));
     }
     else if(query.hasOwnProperty('titulo')) {
         serieSchema
             .deleteOne({titulo:query.name})
             .then((data) => res.send({message:'Eliminado con exito', data}))
-            .catch((error) => res.send({message:'Error al borrar', data:error}));
+            .catch((error) => res.status(500).send({message:'Error al borrar', data:error}));
     }
 };
 
@@ -83,7 +83,7 @@ const modificarPelicula = (req, res) => {
     PeliculaSchema
         .updateOne({_id:id}, {$set:resto})
         .then((data) => res.send({message:'Modificado con exito', data}))
-        .catch((error) => res.send({message:'Error al modificar pelicula', data:error}));
+        .catch((error) => res.status(500).send({message:'Error al modificar pelicula', data:error}));
 };
 
 module.exports = {

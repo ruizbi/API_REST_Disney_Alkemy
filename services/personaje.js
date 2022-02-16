@@ -8,13 +8,13 @@ const crearPersonaje = async (req = request, res = response) => {
     let validar_personaje = await PersonajeSchema.findOne({nombre});
     
     if(validar_personaje)
-        return res.send({message:'El personaje ya existe', data:{}});
+        return res.status(400).send({message:'El personaje ya existe', data:{}});
 
     let personaje = new PersonajeSchema({nombre, edad, peso, historia, imagen, series, peliculas});
     personaje
         .save()
-        .then(data => res.send({message:'Personaje creado', data}))
-        .catch(error => res.send({message:'Error al crear personaje', data:error}));
+        .then(data => res.status(201).send({message:'Personaje creado', data}))
+        .catch(error => res.status(500).send({message:'Error al crear personaje', data:error}));
 };
 
 const obtenerPersonaje = (req = request, res = response) => {
@@ -23,37 +23,37 @@ const obtenerPersonaje = (req = request, res = response) => {
         PersonajeSchema
             .find()
             .then((data) => res.send({data: obtener_info_filtrada(data), message:'Busqueda exitosa'}))
-            .catch((error) => res.send({message: 'Error en la busqueda', data:error}));
+            .catch((error) => res.status(500).send({message: 'Error en la busqueda', data:error}));
     }
     else if(query.hasOwnProperty('name')) {
         PersonajeSchema
             .findOne({nombre:query.name})
             .then((data) => {
-                (data) ? res.send({data, message:'Busqueda exitosa'}) : res.send({data, message:'No se encontro el personaje'})
+                (data) ? res.send({data, message:'Busqueda exitosa'}) : res.status(404).send({data, message:'No se encontro el personaje'})
             })
-            .catch((error) => res.send({message: 'Error en la busqueda', data:error})); 
+            .catch((error) => res.status(500).send({message: 'Error en la busqueda', data:error})); 
     }
     else if(query.hasOwnProperty('age')) {
         PersonajeSchema
             .find({edad:query.age})
             .then((data) => res.send({data: obtener_info_filtrada(data), message:'Busqueda exitosa'}))
-            .catch((error) => res.send({message: 'Error en la busqueda', data:error}));
+            .catch((error) => res.status(500).send({message: 'Error en la busqueda', data:error}));
     }
     else if(query.hasOwnProperty('weight')) {   
         PersonajeSchema
             .find({peso:query.weight})
             .then((data) => res.send({data: obtener_info_filtrada(data), message:'Busqueda exitosa'}))
-            .catch((error) => res.send({message: 'Error en la busqueda', data:error})); 
+            .catch((error) => res.status(500).send({message: 'Error en la busqueda', data:error})); 
     }
     else if(query.hasOwnProperty('movies')) {
         PersonajeSchema
             .find({$or:[{peliculas:{$in:[query.movies]}}, {series:{$in:[query.movies]}}]})
             .then((data) => {
-                (data.length > 0) ? res.send({data, message:'Busqueda exitosa'}):res.send({data:[], message:'No hubo resultados'})})
-            .catch((error) => res.send({message: 'Error en la busqueda', data:error}));
+                (data.length > 0) ? res.send({data, message:'Busqueda exitosa'}):res.status(404).send({data:[], message:'No hubo resultados'})})
+            .catch((error) => res.status(500).send({message: 'Error en la busqueda', data:error}));
     }
     else
-        res.send({data: {}, message:'Error de parametros'}); 
+        res.status(400).send({data: {}, message:'Error de parametros'}); 
 };
 
 const borrarPersonaje = (req = request, res = response) => {
@@ -64,16 +64,16 @@ const borrarPersonaje = (req = request, res = response) => {
         PersonajeSchema
             .deleteOne({_id:query.id})
             .then((data) => res.send({message:'Eliminado con exito', data}))
-            .catch((error) => res.send({message:'Error al borrar', data:error}));
+            .catch((error) => res.status(500).send({message:'Error al borrar', data:error}));
     }
     else if(query.hasOwnProperty('name')) {
         // VALIDAR QUE EXISTE
         PersonajeSchema
             .deleteOne({nombre:query.name})
             .then((data) => res.send({message:'Eliminado con exito', data}))
-            .catch((error) => res.send({message:'Error al borrar', data:error}));
+            .catch((error) => res.status(500).send({message:'Error al borrar', data:error}));
     }
-    else res.send({message:'Error en los parametros al borrar', data: {}})
+    else res.status(400).send({message:'Error en los parametros al borrar', data: {}})
 }
 
 const modificarPersonaje = (req, res) => {
@@ -82,7 +82,7 @@ const modificarPersonaje = (req, res) => {
     PersonajeSchema
         .updateOne({_id:id}, { $set: {nombre, edad, peso, historia, imagen, series, peliculas}})
         .then((data) => res.send({data, message:'Personaje modificado con exito'}))
-        .catch((error) => res.send({message:'Error al modificar el personaje',data:error}));
+        .catch((error) => res.status(500).send({message:'Error al modificar el personaje',data:error}));
 };
 
 module.exports = {
